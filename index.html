@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Night Cage: Echoes of the Maze</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- Subtitle Overlay -->
+        <div id="subtitle-overlay" class="subtitle-hidden">
+            <p id="subtitle-text"></p>
+        </div>
+        
+        <!-- Virtual Joystick -->
+        <div id="joystick-container">
+            <div id="joystick-base"></div>
+            <div id="joystick-handle"></div>
+        </div>
+        
+        <!-- UI Overlay -->
+        <div id="ui-overlay">
+            <div id="inventory-display"></div>
+            <div id="light-indicator">
+                <div id="light-bar"></div>
+            </div>
+        </div>
+        
+        <!-- Menu Screens -->
+        <div id="start-screen" class="menu-screen">
+            <h1>Night Cage</h1>
+            <p class="subtitle">Echoes of the Maze</p>
+            <button id="start-button" class="menu-button">Enter the Maze</button>
+            <button id="continue-button" class="menu-button" style="display: none;">Continue</button>
+        </div>
+        
+        <div id="pause-screen" class="menu-screen hidden">
+            <h2>Paused</h2>
+            <button id="resume-button" class="menu-button">Resume</button>
+            <button id="settings-button" class="menu-button">Settings</button>
+            <button id="quit-button" class="menu-button">Quit</button>
+        </div>
+        
+        <div id="game-over-screen" class="menu-screen hidden">
+            <h2 id="game-over-title"></h2>
+            <div id="run-summary"></div>
+            <button id="restart-button" class="menu-button">Try Again</button>
+            <button id="menu-button" class="menu-button">Main Menu</button>
+        </div>
+        
+        <div id="settings-screen" class="menu-screen hidden">
+            <h2>Settings</h2>
+            <div class="setting-item">
+                <label>Master Volume</label>
+                <input type="range" id="master-volume" min="0" max="100" value="70">
+            </div>
+            <div class="setting-item">
+                <label>Movement Sensitivity</label>
+                <input type="range" id="movement-sensitivity" min="1" max="10" value="5">
+            </div>
+            <div class="setting-item">
+                <label>Camera Sensitivity</label>
+                <input type="range" id="camera-sensitivity" min="1" max="10" value="5">
+            </div>
+            <button id="settings-back-button" class="menu-button">Back</button>
+        </div>
+        
+        <div id="progression-screen" class="menu-screen hidden">
+            <h2>Run Complete</h2>
+            <div id="xp-gained"></div>
+            <div id="upgrades-available"></div>
+            <button id="progression-continue-button" class="menu-button">Continue</button>
+        </div>
+    </div>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js" onerror="console.warn('Tone.js failed to load - audio features will be limited')"></script>
+    
+    <!-- Game Modules -->
+    <script src="js/utils.js"></script>
+    <script src="js/maze.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/raycast.js"></script>
+    <script src="js/items.js"></script>
+    <script src="js/hazards.js"></script>
+    <script src="js/puzzles.js"></script>
+    <script src="js/dialogue.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/progression.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

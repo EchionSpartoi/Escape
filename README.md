@@ -1,4 +1,4 @@
-# Night Cage: Echoes of the Maze
+# eXcape
 
 A first-person horror maze escape game with procedural generation, raycasting rendering, character dialogue, and psychological sound design.
 

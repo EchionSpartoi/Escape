@@ -162,6 +162,48 @@ class PuzzleManager {
         return this.puzzles;
     }
     
+    // Get all locked doors for rendering
+    getLockedDoors() {
+        return this.lockedDoors;
+    }
+    
+    // Get door at grid position (for rendering)
+    getDoorAtPosition(gridX, gridY, cellSize) {
+        // Convert grid coordinates to world coordinates (center of cell)
+        const worldX = gridX * cellSize + cellSize / 2;
+        const worldY = gridY * cellSize + cellSize / 2;
+        
+        for (const door of this.lockedDoors) {
+            // Check if door is in this grid cell (within cellSize/2 distance)
+            const dist = Utils.distance(worldX, worldY, door.x, door.y);
+            if (dist < cellSize / 2) {
+                return door;
+            }
+        }
+        return null;
+    }
+    
+    // Get door orientation (which wall face) based on adjacent cells
+    getDoorOrientation(door, maze) {
+        const gridX = Math.floor(door.x / maze.cellSize);
+        const gridY = Math.floor(door.y / maze.cellSize);
+        
+        // Check adjacent cells to determine which wall face has the door
+        const north = maze.getGridCell(gridX, gridY - 1);
+        const south = maze.getGridCell(gridX, gridY + 1);
+        const east = maze.getGridCell(gridX + 1, gridY);
+        const west = maze.getGridCell(gridX - 1, gridY);
+        
+        // Door is on the wall between this cell and an adjacent wall cell
+        if (north === 1) return 'north'; // Wall to the north
+        if (south === 1) return 'south'; // Wall to the south
+        if (east === 1) return 'east';   // Wall to the east
+        if (west === 1) return 'west';   // Wall to the west
+        
+        // Default to north if unclear
+        return 'north';
+    }
+    
     // Reset for new run
     reset() {
         this.puzzles = [];

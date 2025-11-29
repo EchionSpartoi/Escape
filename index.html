@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Night Cage: Echoes of the Maze</title>
+    <title>eXcape</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -23,8 +23,14 @@
             <div id="joystick-handle"></div>
         </div>
         
+        <!-- Minimap (Top Left) -->
+        <div id="minimap-container">
+            <canvas id="minimap-canvas"></canvas>
+        </div>
+        
         <!-- UI Overlay -->
         <div id="ui-overlay">
+            <div id="level-display">Lv.1</div>
             <div id="inventory-display"></div>
             <div id="light-indicator">
                 <div id="light-bar"></div>
@@ -33,8 +39,7 @@
         
         <!-- Menu Screens -->
         <div id="start-screen" class="menu-screen">
-            <h1>Night Cage</h1>
-            <p class="subtitle">Echoes of the Maze</p>
+            <h1>eXcape</h1>
             <button id="start-button" class="menu-button">Enter the Maze</button>
             <button id="continue-button" class="menu-button" style="display: none;">Continue</button>
         </div>
@@ -75,6 +80,12 @@
             <div id="xp-gained"></div>
             <div id="upgrades-available"></div>
             <button id="progression-continue-button" class="menu-button">Continue</button>
+        </div>
+        
+        <div id="victory-screen" class="menu-screen hidden">
+            <h2>Victory!</h2>
+            <div id="victory-stats"></div>
+            <button id="victory-menu-button" class="menu-button">Return to Menu</button>
         </div>
     </div>
     

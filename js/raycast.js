@@ -43,7 +43,7 @@ class RaycastRenderer {
     }
     
     // Render frame
-    render(player, maze, items = [], hazards = []) {
+    render(player, maze, items = [], hazards = [], doors = []) {
         // Initialize moon start time if not set
         if (this.moonStartTime === null) {
             this.moonStartTime = Date.now();
@@ -68,7 +68,7 @@ class RaycastRenderer {
         
         for (let i = 0; i < this.numRays; i++) {
             const rayAngle = startAngle + this.deltaAngle * i;
-            const ray = this.castRay(player.x, player.y, rayAngle, maze);
+            const ray = this.castRay(player.x, player.y, rayAngle, maze, doors);
             
             // Store ray distance for this screen column
             rayDistances[i] = ray.distance;
@@ -91,7 +91,8 @@ class RaycastRenderer {
                 wallHeight,
                 distance,
                 lightFactor,
-                ray.side
+                ray.side,
+                ray.door
             );
         }
         
@@ -100,7 +101,7 @@ class RaycastRenderer {
     }
     
     // Cast ray and return hit information
-    castRay(startX, startY, angle, maze) {
+    castRay(startX, startY, angle, maze, doors = []) {
         const sin = Math.sin(angle);
         const cos = Math.cos(angle);
         
@@ -180,13 +181,36 @@ class RaycastRenderer {
             hitY = startY + distance * sin;
         }
         
+        // Check if there's a door at this wall position
+        let door = null;
+        if (doors && doors.length > 0) {
+            // The door is in the path cell adjacent to the wall we hit
+            // For side 0 (vertical wall), check the cell we came from in X direction
+            // For side 1 (horizontal wall), check the cell we came from in Y direction
+            const doorCheckX = side === 0 ? mapX - stepX : mapX;
+            const doorCheckY = side === 1 ? mapY - stepY : mapY;
+            
+            // Check if any door is in this adjacent path cell
+            for (const d of doors) {
+                const doorGridX = Math.floor(d.x / cellSize);
+                const doorGridY = Math.floor(d.y / cellSize);
+                
+                // Door should be in the path cell adjacent to the wall
+                if (doorCheckX === doorGridX && doorCheckY === doorGridY) {
+                    door = d;
+                    break;
+                }
+            }
+        }
+        
         return {
             distance: Math.abs(distance),
             hitX,
             hitY,
             side,
             mapX,
-            mapY
+            mapY,
+            door
         };
     }
     
@@ -203,7 +227,7 @@ class RaycastRenderer {
     }
     
     // Draw wall strip with improved static texture
-    drawWallStrip(x, height, distance, lightFactor, side) {
+    drawWallStrip(x, height, distance, lightFactor, side, door = null) {
         const wallTop = (this.height - height) / 2;
         const wallBottom = wallTop + height;
         
@@ -268,6 +292,62 @@ class RaycastRenderer {
                 const crackY = wallTop + (crackSeed % Math.floor(height / 3)) * 3;
                 this.ctx.fillRect(x, crackY, 1, Math.min(3, wallBottom - crackY));
             }
+        }
+        
+        // Draw door overlay if present
+        if (door && !door.unlocked) {
+            this.drawDoor(x, wallTop, height, door, lightFactor);
+        }
+    }
+    
+    // Draw door with key holes
+    drawDoor(x, wallTop, height, door, lightFactor) {
+        // Door takes up most of the wall height, centered
+        const doorHeight = height * 0.8;
+        const doorTop = wallTop + (height - doorHeight) / 2;
+        const doorBottom = doorTop + doorHeight;
+        const doorWidth = 1; // Single pixel column
+        
+        // Door color - darker than wall, with wood-like texture
+        const doorR = Math.floor(60 * lightFactor);
+        const doorG = Math.floor(45 * lightFactor);
+        const doorB = Math.floor(30 * lightFactor);
+        
+        // Draw door background
+        this.ctx.fillStyle = `rgb(${doorR}, ${doorG}, ${doorB})`;
+        this.ctx.fillRect(x, doorTop, doorWidth, doorHeight);
+        
+        // Draw door frame (lighter border)
+        const frameR = Math.floor(80 * lightFactor);
+        const frameG = Math.floor(70 * lightFactor);
+        const frameB = Math.floor(60 * lightFactor);
+        this.ctx.fillStyle = `rgb(${frameR}, ${frameG}, ${frameB})`;
+        // Left and right edges
+        this.ctx.fillRect(x, doorTop, 1, 2);
+        this.ctx.fillRect(x, doorBottom - 2, 1, 2);
+        
+        // Draw key holes (circular holes representing required keys)
+        const keyHoleCount = door.requiredKeys;
+        const keyHoleSpacing = doorHeight / (keyHoleCount + 1);
+        const keyHoleSize = Math.max(2, Math.min(4, height * 0.05));
+        
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${0.9 * lightFactor})`;
+        for (let i = 0; i < keyHoleCount; i++) {
+            const holeY = doorTop + keyHoleSpacing * (i + 1);
+            // Draw keyhole shape (vertical slot with circular hole at top)
+            // Circular part
+            this.ctx.beginPath();
+            this.ctx.arc(x, holeY - keyHoleSize / 2, keyHoleSize / 2, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Vertical slot
+            this.ctx.fillRect(x - keyHoleSize / 4, holeY - keyHoleSize / 2, keyHoleSize / 2, keyHoleSize);
+        }
+        
+        // Add door handle (if unlocked, show it's open)
+        if (door.unlocked) {
+            // Draw open door indicator (lighter area or gap)
+            this.ctx.fillStyle = `rgba(${Math.floor(doorR * 1.5)}, ${Math.floor(doorG * 1.5)}, ${Math.floor(doorB * 1.5)}, ${0.6 * lightFactor})`;
+            this.ctx.fillRect(x, doorTop + doorHeight * 0.3, doorWidth, doorHeight * 0.4);
         }
     }
     

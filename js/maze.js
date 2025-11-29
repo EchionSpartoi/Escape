@@ -54,15 +54,15 @@ class Maze {
         return this.grid;
     }
     
-    // Clear spawn area - small 3x3 to prevent room formation, create narrow hallways
+    // Clear spawn area - ensure player has room to move
     clearSpawnArea(spawnX, spawnY) {
-        // Clear only a small 3x3 area around spawn (not 9x9 to prevent room)
-        for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
+        // Clear a 5x5 area around spawn to ensure player can move
+        for (let dy = -2; dy <= 2; dy++) {
+            for (let dx = -2; dx <= 2; dx++) {
                 const x = spawnX + dx;
                 const y = spawnY + dy;
                 if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-                    // Only clear cardinal directions and center (not corners to keep it narrow)
+                    // Clear all cells in a cross pattern (cardinal directions + center)
                     if (dx === 0 || dy === 0) {
                         this.grid[y][x] = 0;
                     }
@@ -70,25 +70,25 @@ class Maze {
             }
         }
         
-        // Create narrow hallways extending from spawn in all 4 directions
+        // Create clear hallways extending from spawn in all 4 directions
         const directions = [
-            [10, 0],  // East
-            [0, 10],  // South
-            [-10, 0], // West
-            [0, -10]  // North
+            [15, 0],  // East
+            [0, 15],  // South
+            [-15, 0], // West
+            [0, -15]  // North
         ];
         
         for (const [dx, dy] of directions) {
             const endX = spawnX + dx;
             const endY = spawnY + dy;
             
-            // Clear narrow path from spawn to end point (single cell width)
+            // Clear path from spawn to end point
             const steps = Math.max(Math.abs(dx), Math.abs(dy));
             for (let i = 0; i <= steps; i++) {
                 const x = spawnX + Math.floor((dx * i) / steps);
                 const y = spawnY + Math.floor((dy * i) / steps);
                 if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-                    this.grid[y][x] = 0; // Single cell width - no adjacent clearing
+                    this.grid[y][x] = 0; // Clear path
                 }
             }
         }
@@ -99,7 +99,7 @@ class Maze {
         this.grid[y][x] = 0; // Carve path
         this.visited[y][x] = true;
         
-        const directions = [
+        let directions = [
             [0, -2], // North
             [2, 0],  // East
             [0, 2],  // South
@@ -154,13 +154,13 @@ class Maze {
         const spawnX = 1;
         const spawnY = 1;
         
-        // Clear only a small 3x3 area (cardinal directions only, not corners)
-        for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
+        // Clear a larger 5x5 area around spawn to ensure player can move
+        for (let dy = -2; dy <= 2; dy++) {
+            for (let dx = -2; dx <= 2; dx++) {
                 const x = spawnX + dx;
                 const y = spawnY + dy;
                 if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-                    // Only clear if it's in a cardinal direction (not diagonal corners)
+                    // Clear all cells in a cross pattern (cardinal directions + center)
                     if (dx === 0 || dy === 0) {
                         this.grid[y][x] = 0;
                     }
@@ -168,7 +168,7 @@ class Maze {
             }
         }
         
-        // Create narrow hallways in all 4 directions (single cell width)
+        // Create clear hallways extending in all 4 directions (wider for movement)
         const directions = [
             [1, 0],   // East
             [0, 1],   // South
@@ -177,12 +177,12 @@ class Maze {
         ];
         
         for (const [dx, dy] of directions) {
-            // Clear at least 8 cells in each direction (narrow, single cell)
-            for (let i = 1; i <= 8; i++) {
+            // Clear at least 15 cells in each direction to ensure clear path
+            for (let i = 1; i <= 15; i++) {
                 const x = spawnX + dx * i;
                 const y = spawnY + dy * i;
                 if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-                    this.grid[y][x] = 0; // Single cell width - no adjacent clearing
+                    this.grid[y][x] = 0; // Clear path
                 } else {
                     break;
                 }
@@ -271,7 +271,9 @@ class Maze {
             return 1; // Out of bounds = wall
         }
         
-        return this.grid[y][x] || 1; // Default to wall if undefined
+        const cell = this.grid[y][x];
+        // Return cell value (0 for path, 1 for wall), default to wall if undefined
+        return cell !== undefined ? cell : 1;
     }
     
     // Get cell value with visual warping (for rendering only)
@@ -330,7 +332,9 @@ class Maze {
             return 1; // Out of bounds = wall
         }
         
-        return this.grid[gridY][gridX] || 1; // Default to wall if undefined
+        const cell = this.grid[gridY][gridX];
+        // Return cell value (0 for path, 1 for wall), default to wall if undefined
+        return cell !== undefined ? cell : 1;
     }
     
     // Get world position with surreal breathing effect (for rendering only)

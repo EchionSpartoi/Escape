@@ -83,12 +83,17 @@ class ItemManager {
         this.items = [];
         
         // Spawn keys - increased from 5 to 15
-        for (let i = 0; i < count; i++) {
+        let keysSpawned = 0;
+        for (let i = 0; i < count * 3; i++) { // Try more attempts to ensure we get all keys
             const pos = this.findValidSpawnPosition(maze);
             if (pos) {
-                this.createItem('key', pos.x, pos.y);
+                const key = this.createItem('key', pos.x, pos.y);
+                key.visible = true; // Explicitly ensure visibility
+                keysSpawned++;
+                if (keysSpawned >= count) break;
             }
         }
+        console.log(`Spawned ${keysSpawned} keys out of ${count} requested`);
         
         // Spawn artifacts - increased from 2 to 8
         for (let i = 0; i < 8; i++) {
@@ -166,7 +171,13 @@ class ItemManager {
     
     // Get all visible items
     getVisibleItems() {
-        return this.items.filter(item => item.visible && !item.collected);
+        const visible = this.items.filter(item => item.visible && !item.collected);
+        // Debug: log key count
+        const keyCount = visible.filter(item => item.type === 'key').length;
+        if (keyCount > 0 && Math.random() < 0.01) { // Log occasionally to avoid spam
+            console.log(`Visible keys: ${keyCount}`);
+        }
+        return visible;
     }
     
     // Use light source (consume fuel)
